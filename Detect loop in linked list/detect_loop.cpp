@@ -49,6 +49,37 @@ void push2(Node2 **head_ref, int new_data)
     new_node->next2 = *head_ref;
     *head_ref = new_node;
 }
+int countNodes(struct Node2 *n)
+{
+    int res = 1;
+    struct Node2 *temp = n;
+    while (temp->next2 != n)
+    {
+        res++;
+        temp = temp->next2;
+    }
+    return res;
+}
+int countNodesinLoop(struct Node2 *list)
+{
+    struct Node2 *slow_p = list, *fast_p = list;
+ 
+    while (slow_p && fast_p &&
+                     fast_p->next2)
+    {
+        slow_p = slow_p->next2;
+        fast_p = fast_p->next2->next2;
+ 
+        /* If slow_p and fast_p meet at
+        some point then there is a loop */
+        if (slow_p == fast_p)
+            return countNodes(slow_p);
+    }
+ 
+    /* Return 0 to indicate that
+       there is no loop*/
+    return 0;
+}
 int detectLoop2(Node2 *list)
 {
     Node2 *slow_p = list, *fast_p = list;
@@ -87,12 +118,14 @@ cout<<endl;
     push2(&head2, 10);
 
     /* Create a loop for testing */
-    // head2->next2->next2->next2->next2 = head2;
+    head2->next2->next2->next2->next2 = head2->next2;
     cout<<"floyd algorithm result:->"<<endl;
     if (detectLoop2(head2))
         cout << "Loop found";
     else
         cout << "No Loop";
 
+
+cout <<" Length of the loop:-> " <<countNodesinLoop(head2) << endl;
     return 0;
 }

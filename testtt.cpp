@@ -1,31 +1,79 @@
-#include <iostream>
+#include <bits/stdc++.h>
 using namespace std;
-class Node{
-public:
-int data;
-Node* next;
+
+struct Node {
+    int key;
+    struct Node* next;
 };
-// void print(Node** head_ref){
-//     cout<<&head_ref<<endl;
-//     cout<<head_ref<<endl;
-//     cout<<(*head_ref)<<endl;
-//     // cout<<(**node)<<endl;
-// }
+Node* newNode(int key){
+    Node* temp = new Node;
+    temp->key = key;
+    temp->next = NULL;
+    return temp;
+}
+
+void printlist(Node* head){
+    while (head!= NULL)
+    {
+        cout<< head->key<< " ";
+        head = head->next;
+    }
+    cout<<endl;
+}
+int distance(Node* first, Node* last) {
+    int counter =0;
+    Node* curr;
+    curr = first;
+    while (curr!=NULL)
+    {
+        counter += 1;
+        curr = curr->next;
+    }
+    return counter + 1;
+}
+bool detectLoop(Node* head){
+    Node* temp = new Node;
+    Node *first, *last;
+    first = head;
+    last = head;
+
+    int current_length = 0;
+    int prev_length = -1;
+    while (current_length > prev_length && last != NULL)
+    {
+        prev_length = current_length;
+        current_length = distance(first,last);
+        last = last->next;
+    }
+
+    if (last == NULL)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+    
+}
+
+
 int main()
 {
-    // Node *head = NULL;
-    // cout<<head<<endl;
-    // cout<<&head<<endl;
-    // // cout<<(*&head)<<endl;
-    // print(&head);
-    int x=5;
-    int *p=&x;
-    int **y = &p;
+    Node *head = newNode(1);
+    head->next = newNode(2);
+    head->next->next = newNode(3);
+    head->next->next->next= newNode(4);
+    head->next->next->next->next = newNode(5);
 
-    // cout<<y<<endl;
-    // cout<<*y<<endl;
-    // cout<<**y<<endl;
-    cout<<p<<endl;
-    cout<<&p<<endl;
+    
+    head->next->next->next->next->next = head->next->next;
+ 
+    bool found = detectLoop(head);
+
+    if (found)
+		cout<<"Loop found";
+    else
+		cout<<"Loop not found";
     return 0;
 }
