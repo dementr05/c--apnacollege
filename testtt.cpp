@@ -1,79 +1,131 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <stack>
+#include <algorithm>
+
 using namespace std;
 
-struct Node {
-    int key;
-    struct Node* next;
-};
-Node* newNode(int key){
-    Node* temp = new Node;
-    temp->key = key;
-    temp->next = NULL;
-    return temp;
-}
-
-void printlist(Node* head){
-    while (head!= NULL)
-    {
-        cout<< head->key<< " ";
-        head = head->next;
-    }
-    cout<<endl;
-}
-int distance(Node* first, Node* last) {
-    int counter =0;
-    Node* curr;
-    curr = first;
-    while (curr!=NULL)
-    {
-        counter += 1;
-        curr = curr->next;
-    }
-    return counter + 1;
-}
-bool detectLoop(Node* head){
-    Node* temp = new Node;
-    Node *first, *last;
-    first = head;
-    last = head;
-
-    int current_length = 0;
-    int prev_length = -1;
-    while (current_length > prev_length && last != NULL)
-    {
-        prev_length = current_length;
-        current_length = distance(first,last);
-        last = last->next;
-    }
-
-    if (last == NULL)
-    {
-        return false;
-    }
-    else
+bool isOperator(char c)
+{
+    if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^')
     {
         return true;
     }
-    
+    else
+    {
+        return false;
+    }
 }
 
+int precedence(char c)
+{
+    if (c == '^')
+        return 3;
+    else if (c == '*' || c == '/')
+        return 2;
+    else if (c == '+' || c == '-')
+        return 1;
+    else
+        return -1;
+}
+
+string InfixToPrefix(stack<char> s, string infix)
+{
+    string prefix;
+    reverse(infix.begin(), infix.end());
+
+    for (int i = 0; i < infix.length(); i++)
+    {
+        if (infix[i] == '(')
+        {
+            infix[i] = ')';
+        }
+        else if (infix[i] == ')')
+        {
+            infix[i] = '(';
+        }
+    }
+    for (int i = 0; i < infix.length(); i++)
+    {
+        if ((infix[i] >= 'a' && infix[i] <= 'z') || (infix[i] >= 'A' && infix[i] <= 'Z'))
+        {
+            prefix += infix[i];
+        }
+        else if (infix[i] == '(')
+        {
+            s.push(infix[i]);
+        }
+        else if (infix[i] == ')')
+        {
+            while ((s.top() != '(') && (!s.empty()))
+            {
+                prefix += s.top();
+                s.pop();
+            }
+
+            if (s.top() == '(')
+            {
+                s.pop();
+            }
+        }
+        else if (isOperator(infix[i]))
+        {
+            if (s.empty())
+            {
+                s.push(infix[i]);
+            }
+            else
+            {
+                if (precedence(infix[i]) > precedence(s.top()))
+                {
+                    s.push(infix[i]);
+                }
+                else if ((precedence(infix[i]) == precedence(s.top())) && (infix[i] == '^'))
+                {
+                    while ((precedence(infix[i]) == precedence(s.top())) && (infix[i] == '^'))
+                    {
+                        prefix += s.top();
+                        s.pop();
+                    }
+                    s.push(infix[i]);
+                }
+                else if (precedence(infix[i]) == precedence(s.top()))
+                {
+                    s.push(infix[i]);
+                }
+                else
+                {
+                    while ((!s.empty()) && (precedence(infix[i]) < precedence(s.top())))
+                    {
+                        prefix += s.top();
+                        s.pop();
+                    }
+                    s.push(infix[i]);
+                }
+            }
+        }
+    }
+
+    while (!s.empty())
+    {
+        prefix += s.top();
+        s.pop();
+    }
+
+    reverse(prefix.begin(), prefix.end());
+    return prefix;
+}
 
 int main()
 {
-    Node *head = newNode(1);
-    head->next = newNode(2);
-    head->next->next = newNode(3);
-    head->next->next->next= newNode(4);
-    head->next->next->next->next = newNode(5);
 
-    
-    head->next->next->next->next->next = head->next->next;
- 
-    bool found = detectLoop(head);
+    string infix, prefix;
+    cout << "Enter a Infix Expression :" << endl;
+    cin >> infix;
+    stack<char> stack;
+    cout << "INFIX EXPRESSION: " << infix << endl;
+    prefix = InfixToPrefix(stack, infix);
+    cout << endl
+         << "PREFIX EXPRESSION: " << prefix;
 
-    if (found)
-		cout<<"Loop found";
-    else
-		cout<<"Loop not found";
     return 0;
 }
